@@ -15,7 +15,6 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-    /* Animaciones suaves para transiciones de paneles */
     .fade-in {
       animation: fadeIn 0.4s ease-out forwards;
     }
@@ -24,7 +23,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Estilo del botón azul del menú principal (exacto al video) */
+    /* Estilo del botón azul del menú principal */
     .blue-menu-btn {
       background: linear-gradient(135deg, #0080ff 0%, #0056b3 100%);
       border: 1px solid #004080;
@@ -39,41 +38,82 @@
       transform: translateY(1px);
     }
 
-    /* Estilo para simular la página del libro A4 del editor */
+    /* Area de trabajo extendida (desktop) */
+    .workspace-wrapper {
+      position: relative;
+      background-color: #0d0d11;
+      width: 100%;
+      min-height: calc(100vh - 120px);
+      overflow: hidden;
+    }
+
     .a4-page {
       width: 100%;
       max-width: 800px;
       min-height: 1050px;
       background: #ffffff;
       color: #000000;
-      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
       position: relative;
+      margin: 40px auto;
+      z-index: 5;
     }
 
-    /* Elementos flotantes dentro del Canvas del editor */
+    /* Elementos flotantes dentro del desktop */
     .multimedia-widget {
       position: absolute;
       cursor: move;
       user-select: none;
       padding: 4px;
       border: 2px transparent dashed;
+      background: #1c1c24;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      min-width: 150px;
+      min-height: 80px;
     }
     .multimedia-widget.selected {
       border-color: #0080ff;
-      background: rgba(0, 128, 255, 0.05);
     }
+
+    /* Tiradores para ensanchar, adelgazar y redimensionar como en Word */
     .resize-handle {
       position: absolute;
-      width: 10px;
-      height: 10px;
       background-color: #0080ff;
       border: 1px solid #ffffff;
+      z-index: 50;
+    }
+    /* Esquina inferior derecha (diagonal) */
+    .resize-se {
+      width: 12px;
+      height: 12px;
       bottom: -4px;
       right: -4px;
       cursor: se-resize;
-      display: none;
       border-radius: 50%;
-      z-index: 50;
+    }
+    /* Lateral derecho (Ancho - ensanchar/adelgazar) */
+    .resize-e {
+      width: 6px;
+      height: 100%;
+      top: 0;
+      right: -3px;
+      cursor: e-resize;
+    }
+    /* Inferior (Alto - estirar) */
+    .resize-s {
+      width: 100%;
+      height: 6px;
+      bottom: -3px;
+      left: 0;
+      cursor: s-resize;
+    }
+
+    /* Mostrar tiradores solo cuando está seleccionado */
+    .multimedia-widget .resize-handle {
+      display: none;
     }
     .multimedia-widget.selected .resize-handle {
       display: block;
@@ -89,6 +129,18 @@
       justify-content: center;
       text-align: center;
       padding: 12px;
+      height: 100%;
+      width: 100%;
+    }
+
+    /* Clases de estado: Minimizado y Maximizado */
+    .widget-minimized {
+      height: 40px !important;
+      min-height: 40px !important;
+      overflow: hidden !important;
+    }
+    .widget-minimized .widget-content {
+      display: none !important;
     }
   </style>
 </head>
@@ -121,7 +173,7 @@
           <span>🔒</span> Panel Privado
         </button>
 
-        <!-- FORMULARIO DE ACCESO PRIVADO (Desplegable interactivo del video) -->
+        <!-- FORMULARIO DE ACCESO PRIVADO (Con tus datos de seguridad actualizados) -->
         <div id="private-access-form" class="hidden mt-4 bg-[#111111] border border-slate-800 rounded-xl p-6 text-left max-w-md mx-auto fade-in">
           <h2 class="text-xl font-bold mb-4 text-center text-blue-400 border-b border-slate-800 pb-2">Acceso Privado</h2>
           
@@ -137,11 +189,10 @@
             </div>
             
             <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1">¿Pokémon favorito?</label>
-              <input type="text" id="login-pokemon" required placeholder="Escribe aquí..." class="w-full px-3 py-2 bg-white text-black rounded border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Persona histórica más conocida en inicios del siglo XX</label>
+              <input type="text" id="login-security-ans" required placeholder="Respuesta de seguridad..." class="w-full px-3 py-2 bg-white text-black rounded border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
-            <!-- Frase de advertencia exacta del video en rojo/naranja -->
             <p class="text-xs text-amber-500 italic text-center py-2">
               ¿Eres tú o eres un desconocido? No me andes con rodeos.
             </p>
@@ -181,9 +232,9 @@
           <span>📤</span> Publicar historia
         </button>
 
-        <!-- Personalizar página -->
-        <button onclick="alertNotification('Próximamente', 'Esta función estará disponible en la siguiente actualización de Historias Épicas.')" class="blue-menu-btn w-full py-4 px-6 rounded-lg text-white font-semibold flex items-center justify-center gap-2 opacity-80">
-          <span>🎨</span> Personalizar página (próximamente)
+        <!-- Botón Exportar Proyecto actual -->
+        <button onclick="openExportModal()" class="blue-menu-btn w-full py-4 px-6 rounded-lg text-white font-semibold flex items-center justify-center gap-2">
+          <span>💾</span> Exportar tus archivos de historia
         </button>
 
         <!-- Cerrar Sesión / Volver -->
@@ -196,7 +247,7 @@
   </div>
 
 
-  <!-- ================= VISTA 3: EDITOR DE CANVAS MULTIMEDIA ================= -->
+  <!-- ================= VISTA 3: EDITOR DE CANVAS EXTENDIDO ================= -->
   <div id="view-editor" class="hidden flex-1 flex flex-col bg-[#141416]">
     
     <!-- Barra de herramientas superior compacta -->
@@ -212,7 +263,6 @@
 
         <!-- Formateo de Texto -->
         <div class="flex items-center gap-2">
-          <!-- Fuentes -->
           <select id="font-family" class="bg-slate-800 text-white rounded px-2 py-1.5 text-xs">
             <option value="Calibri" selected>Calibri</option>
             <option value="Arial">Arial</option>
@@ -220,7 +270,6 @@
             <option value="Courier New">Courier New</option>
           </select>
 
-          <!-- Tamaños -->
           <select id="font-size" class="bg-slate-800 text-white rounded px-2 py-1.5 text-xs">
             <option value="10px">10px</option>
             <option value="14px" selected>14px</option>
@@ -229,14 +278,12 @@
             <option value="32px">32px</option>
           </select>
 
-          <!-- Estilos básicos -->
           <div class="flex bg-slate-800 rounded p-0.5 gap-0.5">
             <button onclick="applyStyle('bold')" class="px-2 py-1 rounded text-xs font-bold hover:bg-slate-700">B</button>
             <button onclick="applyStyle('italic')" class="px-2 py-1 rounded text-xs italic hover:bg-slate-700">I</button>
             <button onclick="applyStyle('underline')" class="px-2 py-1 rounded text-xs underline hover:bg-slate-700">U</button>
           </div>
 
-          <!-- Color -->
           <input type="color" id="text-color" class="w-6 h-6 rounded cursor-pointer bg-transparent border border-slate-700" value="#000000" title="Color de Texto">
         </div>
 
@@ -261,18 +308,23 @@
           </button>
         </div>
 
-        <!-- Guardar/Publicar rápido -->
-        <button onclick="openPublishModal()" class="bg-[#0080ff] hover:bg-blue-500 px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1">
-          <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i> Publicar
-        </button>
+        <!-- Acciones del Editor -->
+        <div class="flex items-center gap-2">
+          <button onclick="openExportModal()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar
+          </button>
+          <button onclick="openPublishModal()" class="bg-[#0080ff] hover:bg-blue-500 px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1">
+            <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i> Publicar
+          </button>
+        </div>
 
       </div>
     </header>
 
-    <!-- Canvas A4 del Editor -->
-    <div class="flex-1 flex justify-center items-start py-8 px-4 overflow-y-auto" onclick="deselectWidgets(event)">
-      <div id="canvas-container" class="a4-page p-12 relative" onclick="deselectWidgets(event)">
-        <!-- Div de Texto editable libre de fondo -->
+    <!-- Canvas A4 del Editor rodeado de columnas negras en el mismo contenedor interactivo -->
+    <div id="workspace-container" class="workspace-wrapper py-8 px-4 overflow-y-auto" onclick="deselectWidgets(event)">
+      <!-- Hoja A4 interactiva de fondo -->
+      <div id="canvas-container" class="a4-page p-12" onclick="deselectWidgets(event)">
         <div id="editable-text-area" class="w-full min-h-full outline-none" contenteditable="true" spellcheck="false" style="font-family: Calibri, sans-serif; font-size: 14px;">Escribe tu historia aquí...</div>
       </div>
     </div>
@@ -280,7 +332,8 @@
   </div>
 
 
-  <!-- ================= MODAL: PUBLICAR HISTORIA (Exacto al minuto 0:49) ================= -->
+  <!-- ================= MODALES Y FORMULARIOS ================= -->
+  <!-- MODAL: PUBLICAR HISTORIA -->
   <div id="modal-publish" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
     <div class="bg-[#1c1c1e] border border-slate-800 rounded-xl p-6 max-w-lg w-full shadow-2xl text-left fade-in">
       
@@ -340,7 +393,6 @@
           </div>
         </div>
 
-        <!-- Link "¿Quieres editar tu historia?" del video -->
         <div class="text-right">
           <a href="#" onclick="closePublishModal(); goToEditor(); return false;" class="text-xs text-blue-400 hover:underline">
             ¿Quieres editar tu historia?
@@ -358,6 +410,43 @@
         </div>
 
       </form>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL DE EXPORTACIÓN ================= -->
+  <div id="modal-export" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
+    <div class="bg-[#1c1c1e] border border-slate-800 rounded-xl p-6 max-w-md w-full shadow-2xl text-left fade-in">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i data-lucide="download" class="text-blue-400"></i> Exportar tus archivos de historia
+        </h3>
+        <button onclick="closeExportModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-400 mb-6 leading-relaxed">
+        Elige el formato de salida para exportar tu progreso y tus archivos multimedia maquetados:
+      </p>
+
+      <div class="space-y-3">
+        <button onclick="exportAsHTML()" class="w-full bg-slate-850 hover:bg-slate-800 border border-slate-700/60 rounded-lg p-4 text-left flex items-center justify-between transition group">
+          <div>
+            <div class="text-sm font-bold text-white group-hover:text-blue-400">Historia Interactiva Completa (.html)</div>
+            <div class="text-[11px] text-slate-500">Conserva el texto, imágenes, videos y sus posiciones exactas.</div>
+          </div>
+          <i data-lucide="code" class="w-5 h-5 text-slate-500 group-hover:text-blue-400"></i>
+        </button>
+
+        <button onclick="exportAsTXT()" class="w-full bg-slate-850 hover:bg-slate-800 border border-slate-700/60 rounded-lg p-4 text-left flex items-center justify-between transition group">
+          <div>
+            <div class="text-sm font-bold text-white group-hover:text-blue-400">Texto del manuscrito (.txt)</div>
+            <div class="text-[11px] text-slate-500">Solo exporta el texto escrito en tu hoja A4 limpia.</div>
+          </div>
+          <i data-lucide="file-text" class="w-5 h-5 text-slate-500 group-hover:text-blue-400"></i>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -433,7 +522,7 @@
     <div>&copy; 2026 Historias Épicas. Todos los derechos reservados.</div>
     <div class="flex gap-4">
       <span>Usuario: Dectruc2070</span>
-      <span>PLANZOM</span>
+      <span>GitHub Pages</span>
     </div>
   </footer>
 
@@ -447,6 +536,7 @@
     let activeWidget = null;
     let isDragging = false;
     let isResizing = false;
+    let currentResizeHandle = null; // 'se', 'e', 's'
     let dragStartX = 0;
     let dragStartY = 0;
     let widgetStartLeft = 0;
@@ -455,13 +545,10 @@
     let widgetStartHeight = 0;
     let maxZIndex = 20;
 
-    // Archivo temporal subido en el editor
     let currentUploadedFile = null;
-
-    // Base de datos local en memoria de historias publicadas para hacerlo completamente interactivo
     const dbStories = [];
 
-    // --- MANEJO DE NAVEGACIÓN Y VISTAS ---
+    // --- NAVEGACIÓN Y VISTAS ---
     function showView(viewId) {
       document.getElementById('view-home').classList.add('hidden');
       document.getElementById('view-private-panel').classList.add('hidden');
@@ -471,22 +558,17 @@
       lucide.createIcons();
     }
 
-    // --- CONTROL DE VENTANAS MODALES ---
-    function openInfoModal() {
-      document.getElementById('modal-info').classList.remove('hidden');
-    }
-    function openCreatorModal() {
-      document.getElementById('modal-creator').classList.remove('hidden');
-    }
-    function openStoriesModal() {
-      renderStories();
-      document.getElementById('modal-stories').classList.remove('hidden');
-    }
-    function closeModal(modalId) {
-      document.getElementById(modalId).classList.add('hidden');
-    }
+    // --- MODALES ---
+    function openInfoModal() { document.getElementById('modal-info').classList.remove('hidden'); }
+    function openCreatorModal() { document.getElementById('modal-creator').classList.remove('hidden'); }
+    function openStoriesModal() { renderStories(); document.getElementById('modal-stories').classList.remove('hidden'); }
+    function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
 
-    // --- ACCESO PRIVADO (LOGIC DEL FORMULARIO Y CREDENCIALES DEL VIDEO) ---
+    // --- EXPORTAR ---
+    function openExportModal() { document.getElementById('modal-export').classList.remove('hidden'); }
+    function closeExportModal() { document.getElementById('modal-export').classList.add('hidden'); }
+
+    // --- ACCESO PRIVADO (Con datos de seguridad actualizados de Francis) ---
     function togglePrivateAccess() {
       const form = document.getElementById('private-access-form');
       form.classList.toggle('hidden');
@@ -496,20 +578,21 @@
       event.preventDefault();
       
       const email = document.getElementById('login-email').value.trim();
-      const pokemon = document.getElementById('login-pokemon').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value.trim();
+      const securityAns = document.getElementById('login-security-ans').value.trim().toLowerCase();
       
-      // Reconocimiento automático de credenciales según tu video de demostración:
-      // Correo: francisromeroaldez@gmail.com
-      // Pokémon favorito: mewtwo
-      if (email === "francisromeroaldez@gmail.com" && pokemon === "mewtwo") {
-        alertNotification("Acceso Autorizado", "¡Hola Francis! Contraseña y respuesta de seguridad correctas. Bienvenido de vuelta.");
+      // Validación estricta con credenciales reales de Francis
+      if (
+        email === "francisromerovaldez@gmail.com" && 
+        password === "XP95" && 
+        (securityAns.includes("adolf") || securityAns.includes("hitler") || securityAns.includes("adolf hitler"))
+      ) {
+        alertNotification("Acceso Autorizado", "¡Hola Francis! Contraseña y respuesta de seguridad correctas. Bienvenido a tu panel.");
         showView('view-private-panel');
         document.getElementById('login-form').reset();
         document.getElementById('private-access-form').classList.add('hidden');
       } else {
-        // En caso de que sea otro usuario o modo pruebas, permitimos el paso indicándolo amigablemente
-        alertNotification("Acceso Demo / Invitado", "Has ingresado credenciales distintas. Para efectos del test de GitHub, te daremos acceso al panel.");
-        showView('view-private-panel');
+        alertNotification("Acceso Denegado", "Las credenciales ingresadas o la respuesta de seguridad son incorrectas. Inténtalo de nuevo.");
       }
     }
 
@@ -517,23 +600,10 @@
       showView('view-home');
     }
 
-    // --- PANEL PRIVADO ACCIONES ---
-    function goToEditor() {
-      showView('view-editor');
-    }
-
-    function goBackToPanel() {
-      showView('view-private-panel');
-    }
-
-    // --- MODAL DE PUBLICACIÓN ---
-    function openPublishModal() {
-      document.getElementById('modal-publish').classList.remove('hidden');
-    }
-
-    function closePublishModal() {
-      document.getElementById('modal-publish').classList.add('hidden');
-    }
+    function goToEditor() { showView('view-editor'); }
+    function goBackToPanel() { showView('view-private-panel'); }
+    function openPublishModal() { document.getElementById('modal-publish').classList.remove('hidden'); }
+    function closePublishModal() { document.getElementById('modal-publish').classList.add('hidden'); }
 
     function updateFileNameLabel(input, labelId) {
       const label = document.getElementById(labelId);
@@ -548,12 +618,10 @@
 
     function handlePublish(event) {
       event.preventDefault();
-
       const title = document.getElementById('pub-title').value;
       const desc = document.getElementById('pub-desc').value;
       const category = document.getElementById('pub-category').value;
       
-      // Agregar la historia al array local para simular la persistencia
       dbStories.unshift({
         title,
         desc,
@@ -564,13 +632,11 @@
       closePublishModal();
       alertNotification("Historia Publicada", `¡Felicidades! Tu historia "${title}" ha sido registrada exitosamente.`);
       
-      // Limpiar el formulario
       document.getElementById('publish-form').reset();
       document.getElementById('label-file-txt').textContent = "Sin archivos seleccionados";
       document.getElementById('label-file-cover').textContent = "Sin archivos seleccionados";
     }
 
-    // Renderizar historias publicadas en el modal
     function renderStories() {
       const list = document.getElementById('published-stories-list');
       if (dbStories.length === 0) {
@@ -591,24 +657,20 @@
     }
 
 
-    // --- ENGINES DEL CANVAS EDITABLE MULTIMEDIA ---
-
+    // --- MOTORES DE FORMATO DEL TEXTO EN HOJA A4 ---
     function applyStyle(command) {
       document.execCommand(command, false, null);
       document.getElementById('editable-text-area').focus();
     }
 
-    // Escuchar el selector de color de texto en tiempo real
     document.getElementById('text-color').addEventListener('input', (e) => {
       document.execCommand('foreColor', false, e.target.value);
     });
 
-    // Escuchar el selector de fuente en tiempo real
     document.getElementById('font-family').addEventListener('change', (e) => {
       document.execCommand('fontName', false, e.target.value);
     });
 
-    // Escuchar el selector de tamaño
     document.getElementById('font-size').addEventListener('change', (e) => {
       const sizeStr = e.target.value;
       let sizeValue = "3";
@@ -628,34 +690,31 @@
     function handleEditorFile(input) {
       if (input.files && input.files.length > 0) {
         currentUploadedFile = input.files[0];
-        alertNotification("Archivo listo para insertar", `"${currentUploadedFile.name}" cargado. Ahora haz clic en el botón de Imagen, Audio o Video para colocarlo.`);
+        alertNotification("Archivo listo para insertar", `"${currentUploadedFile.name}" cargado. Haz clic en Figura, Imagen, Audio o Video para insertarlo en el lienzo.`);
       }
     }
 
-    // Inserción de Figura (Óvalo exacto con texto interno editable)
+    // --- INSERCIÓN DE MULTIMEDIA CON FLEXIBILIDAD EN LAS COLUMNAS NEGRAS ---
     function insertShape() {
       const container = document.createElement('div');
-      container.className = "oval-shape w-full h-full";
+      container.className = "oval-shape";
       
       const textSpan = document.createElement('div');
       textSpan.className = "outline-none text-xs break-words w-full px-2";
       textSpan.contentEditable = "true";
       textSpan.textContent = "Texto en óvalo";
       
-      // Prevenir drag al escribir dentro del óvalo
       textSpan.addEventListener('mousedown', (e) => { e.stopPropagation(); });
       container.appendChild(textSpan);
       
-      createWidget(container, 160, 100, 100, 150);
+      createWidget(container, 160, 100, 100, 150, "Figura");
     }
 
-    // Inserción de Imagen
     function insertImage() {
       let src = "";
       if (currentUploadedFile && currentUploadedFile.type.startsWith('image/')) {
         src = URL.createObjectURL(currentUploadedFile);
       } else {
-        // Imagen demo elegante en SVG
         src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'><rect width='100%' height='100%' fill='%230056b3'/><text x='50%' y='45%' font-size='20' font-family='Arial, sans-serif' font-weight='bold' fill='white' text-anchor='middle'>¡No quiero xd!</text><text x='50%' y='65%' font-size='11' font-family='Arial, sans-serif' fill='%23dddddd' text-anchor='middle'>Meme del video original</text></svg>";
       }
       
@@ -663,10 +722,9 @@
       img.src = src;
       img.className = "w-full h-full object-cover pointer-events-none select-none rounded";
       
-      createWidget(img, 180, 130, 80, 100);
+      createWidget(img, 180, 130, 80, 100, "Imagen");
     }
 
-    // Inserción de Audio
     function insertAudio() {
       let src = "";
       if (currentUploadedFile && currentUploadedFile.type.startsWith('audio/')) {
@@ -690,10 +748,9 @@
       audioContainer.appendChild(title);
       audioContainer.appendChild(audio);
 
-      createWidget(audioContainer, 280, 75, 200, 300);
+      createWidget(audioContainer, 280, 75, 200, 300, "Audio");
     }
 
-    // Inserción de Video
     function insertVideo() {
       let src = "";
       if (currentUploadedFile && currentUploadedFile.type.startsWith('video/')) {
@@ -707,12 +764,12 @@
       video.controls = true;
       video.className = "w-full h-full object-contain bg-black rounded";
       
-      createWidget(video, 250, 170, 240, 50);
+      createWidget(video, 250, 170, 240, 50, "Video");
     }
 
 
-    // --- COMPORTAMIENTO DRAG & RESIZE DE WIDGETS ---
-    function createWidget(contentElement, width, height, initialTop, initialLeft) {
+    // --- CONTROL DE DRAG, REDIMENSIONAR, MAXIMIZAR Y MINIMIZAR ---
+    function createWidget(contentElement, width, height, initialTop, initialLeft, titleText) {
       const widget = document.createElement('div');
       widget.className = "multimedia-widget";
       widget.style.width = `${width}px`;
@@ -721,20 +778,59 @@
       widget.style.left = `${initialLeft}px`;
       widget.style.zIndex = getNextZIndex();
 
-      widget.appendChild(contentElement);
-
-      // Tirador para cambiar tamaño
-      const resizeHandle = document.createElement('div');
-      resizeHandle.className = "resize-handle";
-      widget.appendChild(resizeHandle);
-
-      // Panel flotante para eliminar o mover capa
-      const controls = document.createElement('div');
-      controls.className = "absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-800 rounded px-2 py-1 flex gap-2 text-white text-xs shadow-lg hidden group-hover:flex z-[100]";
+      // Barra de título del control de sistema OS
+      const titleBar = document.createElement('div');
+      titleBar.className = "w-full h-6 bg-slate-800 text-[10px] text-slate-400 font-bold px-2 flex justify-between items-center rounded-t-md select-none border-b border-slate-700 mb-1 flex-shrink-0 cursor-move";
       
-      // Botón borrar
+      const titleSpan = document.createElement('span');
+      titleSpan.textContent = titleText;
+      titleBar.appendChild(titleSpan);
+
+      // Botonera de control (Minimizar, Maximizar, Cerrar)
+      const btnGroup = document.createElement('div');
+      btnGroup.className = "flex gap-1.5 items-center";
+
+      // Minimizar (Collapse)
+      const btnMin = document.createElement('button');
+      btnMin.innerHTML = "➖";
+      btnMin.title = "Minimizar";
+      btnMin.onclick = (e) => {
+        e.stopPropagation();
+        widget.classList.toggle('widget-minimized');
+      };
+
+      // Maximizar (Max)
+      const btnMax = document.createElement('button');
+      btnMax.innerHTML = "🔲";
+      btnMax.title = "Maximizar / Restaurar";
+      let isMaximized = false;
+      let prevRect = {};
+      btnMax.onclick = (e) => {
+        e.stopPropagation();
+        if (!isMaximized) {
+          prevRect = {
+            width: widget.style.width,
+            height: widget.style.height,
+            top: widget.style.top,
+            left: widget.style.left
+          };
+          widget.style.width = "90%";
+          widget.style.height = "80vh";
+          widget.style.top = "10px";
+          widget.style.left = "5%";
+          isMaximized = true;
+        } else {
+          widget.style.width = prevRect.width;
+          widget.style.height = prevRect.height;
+          widget.style.top = prevRect.top;
+          widget.style.left = prevRect.left;
+          isMaximized = false;
+        }
+      };
+
+      // Cerrar
       const btnDel = document.createElement('button');
-      btnDel.innerHTML = "🗑️";
+      btnDel.innerHTML = "❌";
       btnDel.title = "Eliminar";
       btnDel.onclick = (e) => {
         e.stopPropagation();
@@ -742,32 +838,48 @@
         if (activeWidget === widget) activeWidget = null;
       };
 
-      // Botón traer al frente
-      const btnFront = document.createElement('button');
-      btnFront.innerHTML = "🔼";
-      btnFront.title = "Traer al Frente";
-      btnFront.onclick = (e) => {
-        e.stopPropagation();
-        widget.style.zIndex = getNextZIndex();
-      };
+      btnGroup.appendChild(btnMin);
+      btnGroup.appendChild(btnMax);
+      btnGroup.appendChild(btnDel);
+      titleBar.appendChild(btnGroup);
 
-      controls.appendChild(btnFront);
-      controls.appendChild(btnDel);
-      widget.appendChild(controls);
+      // Contenedor de contenido estructurado
+      const contentContainer = document.createElement('div');
+      contentContainer.className = "widget-content w-full h-full flex-1 overflow-hidden";
+      contentContainer.appendChild(contentElement);
 
-      // Mouse Listeners para arrastrar y cambiar tamaño
+      widget.appendChild(titleBar);
+      widget.appendChild(contentContainer);
+
+      // Crear Tiradores (Word)
+      const handleCorner = document.createElement('div');
+      handleCorner.className = "resize-handle resize-se";
+      widget.appendChild(handleCorner);
+
+      const handleWidth = document.createElement('div');
+      handleWidth.className = "resize-handle resize-e";
+      widget.appendChild(handleWidth);
+
+      const handleHeight = document.createElement('div');
+      handleHeight.className = "resize-handle resize-s";
+      widget.appendChild(handleHeight);
+
+      // Event Listeners para Mouse y Drag
       widget.addEventListener('mousedown', (e) => {
-        if (e.target.closest('audio') || e.target.closest('video')) return;
+        if (e.target.closest('audio') || e.target.closest('video') || e.target.closest('button')) return;
 
         e.stopPropagation();
         selectWidget(widget);
 
-        // Mostrar controles flotantes
-        controls.classList.remove('hidden');
-
-        if (e.target === resizeHandle) {
+        if (e.target === handleCorner) {
           isResizing = true;
-          isDragging = false;
+          currentResizeHandle = 'se';
+        } else if (e.target === handleWidth) {
+          isResizing = true;
+          currentResizeHandle = 'e';
+        } else if (e.target === handleHeight) {
+          isResizing = true;
+          currentResizeHandle = 's';
         } else {
           isDragging = true;
           isResizing = false;
@@ -784,7 +896,8 @@
         document.addEventListener('mouseup', onMouseUp);
       });
 
-      document.getElementById('canvas-container').appendChild(widget);
+      // Añadimos el elemento directamente al contenedor del workspace (Permitiendo las dos columnas negras)
+      document.getElementById('workspace-container').appendChild(widget);
       selectWidget(widget);
     }
 
@@ -795,29 +908,34 @@
       const deltaY = e.clientY - dragStartY;
 
       if (isDragging) {
-        const parent = document.getElementById('canvas-container');
+        const parent = document.getElementById('workspace-container');
         let newLeft = widgetStartLeft + deltaX;
         let newTop = widgetStartTop + deltaY;
 
-        newLeft = Math.max(0, Math.min(newLeft, parent.offsetWidth - activeWidget.offsetWidth));
-        newTop = Math.max(0, Math.min(newTop, parent.offsetHeight - activeWidget.offsetHeight));
+        // Permitimos mover libremente por todo el Workspace sin restricción de columnas
+        newLeft = Math.max(-50, Math.min(newLeft, parent.scrollWidth - 100));
+        newTop = Math.max(0, Math.min(newTop, parent.scrollHeight - 100));
 
         activeWidget.style.left = `${newLeft}px`;
         activeWidget.style.top = `${newTop}px`;
       }
 
       if (isResizing) {
-        const newWidth = Math.max(60, widgetStartWidth + deltaX);
-        const newHeight = Math.max(30, widgetStartHeight + deltaY);
-
-        activeWidget.style.width = `${newWidth}px`;
-        activeWidget.style.height = `${newHeight}px`;
+        if (currentResizeHandle === 'se' || currentResizeHandle === 'e') {
+          const newWidth = Math.max(120, widgetStartWidth + deltaX);
+          activeWidget.style.width = `${newWidth}px`;
+        }
+        if (currentResizeHandle === 'se' || currentResizeHandle === 's') {
+          const newHeight = Math.max(60, widgetStartHeight + deltaY);
+          activeWidget.style.height = `${newHeight}px`;
+        }
       }
     }
 
     function onMouseUp() {
       isDragging = false;
       isResizing = false;
+      currentResizeHandle = null;
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
     }
@@ -832,8 +950,6 @@
       if (e && e.target.closest('.multimedia-widget')) return;
       document.querySelectorAll('.multimedia-widget').forEach(w => {
         w.classList.remove('selected');
-        const ctrl = w.querySelector('.absolute');
-        if (ctrl) ctrl.classList.add('hidden');
       });
       activeWidget = null;
     }
@@ -844,7 +960,70 @@
     }
 
 
-    // --- NOTIFICACIONES ---
+    // --- SINOPSIS Y SISTEMAS DE EXPORTACIÓN ---
+    function exportAsTXT() {
+      const text = document.getElementById('editable-text-area').innerText;
+      downloadFile(text, "manuscrito_historia.txt", "text/plain");
+      closeExportModal();
+    }
+
+    function exportAsHTML() {
+      // Clona la estructura de widgets para empaquetarlos
+      const elementsHTML = [];
+      const widgets = document.querySelectorAll('.multimedia-widget');
+      widgets.forEach(w => {
+        elementsHTML.push({
+          style: w.getAttribute('style'),
+          content: w.querySelector('.widget-content').innerHTML,
+          title: w.querySelector('span').textContent
+        });
+      });
+
+      const bodyText = document.getElementById('editable-text-area').innerHTML;
+
+      const completeHTML = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Historias Épicas Exportada</title>
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <style>
+    body { background-color: #0d0d11; color: #fff; font-family: sans-serif; }
+    .a4-page { background: #fff; color: #000; max-width: 800px; min-height: 1050px; margin: 40px auto; padding: 48px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+    .multimedia-widget { position: absolute; background: #1c1c24; border-radius: 8px; padding: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+    .title-bar { background-color: #1e293b; color: #94a3b8; font-size: 10px; font-weight: bold; padding: 4px 8px; display: flex; justify-content: space-between; border-radius: 6px 6px 0 0; }
+  </style>
+</head>
+<body>
+  <div class="relative w-full min-h-screen">
+    <div class="a4-page">
+      ${bodyText}
+    </div>
+    ${elementsHTML.map(el => `
+      <div class="multimedia-widget" style="${el.style}">
+        <div class="title-bar"><span>${el.title}</span></div>
+        <div style="padding: 4px;">${el.content}</div>
+      </div>
+    `).join('')}
+  </div>
+</body>
+</html>`;
+
+      downloadFile(completeHTML, "historia_interactive.html", "text/html");
+      closeExportModal();
+    }
+
+    function downloadFile(content, fileName, contentType) {
+      const a = document.createElement("a");
+      const file = new Blob([content], { type: contentType });
+      a.href = URL.createObjectURL(file);
+      a.download = fileName;
+      a.click();
+    }
+
+
+    // --- SISTEMA DE NOTIFICACIONES ---
     function alertNotification(title, desc) {
       document.getElementById('notif-title').textContent = title;
       document.getElementById('notif-desc').textContent = desc;
